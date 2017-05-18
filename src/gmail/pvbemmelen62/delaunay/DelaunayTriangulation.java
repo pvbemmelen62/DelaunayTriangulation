@@ -9,9 +9,10 @@ import gmail.pvbemmelen62.delaunay.dcel.Dcel.*;
 public class DelaunayTriangulation {
   /*
    * "the orientation of i0, i1, i2" =def=
-   *    the rotation when moving from point i0 to point i1 to point i2
+   *    the rotation according to the corkscrew rule, when moving from
+   *    point i0 to point i1 to point i2
    * Since the points lie in the xy plane, the rotation will be in the
-   * +z or -z direction, according to the corkscrew rule.
+   * +z or -z direction.
    */
   protected Dcel dcel;
   protected PointLocationStructure pls;
@@ -79,7 +80,7 @@ public class DelaunayTriangulation {
     h_20.face.data = pls.top;
     for(int i=0; i<permutation.length; ++i) {
       int pointIndex = permutation[i];
-      Node[] nodes = pls.findContainingLeafNodes(pointIndex);
+      Node[] nodes = pls.findContainingLeafNodes(points[pointIndex]);
       if(nodes.length==1) {
         Node node = nodes[0];
         int[] tri = node.triangle;
@@ -168,5 +169,5 @@ public class DelaunayTriangulation {
     facesNew[0].data = nodesNew[0];
     facesNew[1].data = nodesNew[1];
     return hNew;
-  }  
+  }
 }

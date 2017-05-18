@@ -13,12 +13,12 @@ public class PointLocationStructureTest {
     Random random = new Random(seed);
     Point[] points = Points.randomPoints(numPoints, random);
     int iLargest = DelaunayTriangulation.findLargestPoint(points);
-    DelaunayTriangulation.swap(points, 0, iLargest);
+    Util.swap((Object[])points, 0, iLargest);
     PointLocationStructure pls = new PointLocationStructure(points);
     int[] permutation = Util.permutation(random, 1, numPoints-1);
     for(int i=0; i<numPoints-1; ++i) {
       int pointIndex = permutation[i];
-      Node[] nodes = pls.findContainingLeafNodes(pointIndex);
+      Node[] nodes = pls.findContainingLeafNodes(points[pointIndex]);
       if(nodes.length==1) {
         pls.splitContainingLeafNode(nodes[0], pointIndex);
       }

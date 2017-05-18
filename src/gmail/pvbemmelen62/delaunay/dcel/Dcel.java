@@ -136,7 +136,7 @@ public class Dcel {
       Point p3 = v3.getPoint();
       Boolean convex = null;
       // Below, don't think about angles, but think about orientation of
-      // triangles, using the cork-screw rule.
+      // triangles, using the corkscrew rule.
       // Both p2,p0,p3 and p3,p1,p2 must have orientation in -z direction.
       if(numNegs==0) {
         convex =

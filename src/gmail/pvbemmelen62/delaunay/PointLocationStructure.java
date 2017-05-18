@@ -30,18 +30,17 @@ public class PointLocationStructure {
       return "Node [children=" + Arrays.toString(children) + ", triangle="
           + Arrays.toString(triangle) + "]";
     }
-    public Node[] findContainingChildren(int pointIndex) {
-      int pi = pointIndex;
+    public Node[] findContainingChildren(Point p) {
       if(children==null) {
         return null;
       }
       if(children.length==2) {
-        return findContainingChildren(children[0], children[1], pi);
+        return findContainingChildren(children[0], children[1], p);
       }
       else if(children.length==3) {
-        Node[] ns01 = findContainingChildren(children[0], children[1], pi);
-        Node[] ns12 = findContainingChildren(children[1], children[2], pi);
-        Node[] ns20 = findContainingChildren(children[2], children[0], pi);
+        Node[] ns01 = findContainingChildren(children[0], children[1], p);
+        Node[] ns12 = findContainingChildren(children[1], children[2], p);
+        Node[] ns20 = findContainingChildren(children[2], children[0], p);
         int[] childCounts = {0,0,0};
         for(Node[] nds : new Node[][] { ns01, ns12, ns20 }) {
           for(Node nd : nds) {
@@ -56,7 +55,7 @@ public class PointLocationStructure {
         else if(numIndices==2) {
           return new Node[] { children[indices[0]], children[indices[1]] };
         }
-        else {
+        else { // probably due to two equal points in input.
           throw new IllegalStateException("Unexpected numIndices: "
             + numIndices);
         }
@@ -95,8 +94,7 @@ public class PointLocationStructure {
     /** Boundary of node0.triangle and node1.triangle decides which one/two
      *  contain points[pointIndex] .*/
     protected Node[] findContainingChildren(Node node0, Node node1,
-        int pointIndex) {
-      Point p = points[pointIndex];
+        Point p) {
       int[] tri0 = node0.triangle;
       int[] tri1 = node1.triangle;
       int[] commons = Triangle.findCommonPoints(tri0, tri1);
@@ -188,14 +186,14 @@ public class PointLocationStructure {
    * that one node; if p lies on the boundary of two nodes, then the array
    * contains those two nodes.
    */
-  public Node[] findContainingLeafNodes(int pointIndex) {
+  public Node[] findContainingLeafNodes(Point p) {
     Deque<Node> deque = new LinkedList<>();
     deque.addLast(top);
     Node[] leafNodes = new Node[2];
     int numLeafNodes = 0;
     while(!deque.isEmpty()) {
       Node node = deque.removeFirst();
-      Node[] children = node.findContainingChildren(pointIndex);
+      Node[] children = node.findContainingChildren(p);
       if(children==null) {
         if(numLeafNodes > 1) {
           // Question: may a leaf node show up more than once ?

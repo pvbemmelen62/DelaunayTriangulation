@@ -66,12 +66,15 @@ public class Util {
   }
   /** Swaps values in ns at index i and j. */
   public static void swap(int[] ns, int i, int j) {
-    if(i==j) {
-      return;
-    }
     int tmp = ns[i];
     ns[i] = ns[j];
     ns[j] = tmp;
+  }
+  /** Swaps values in obs at index i and j. */
+  public static void swap(Object[] obs, int i, int j) {
+    Object tmp = obs[i];
+    obs[i] = obs[j];
+    obs[j] = tmp;
   }
   /** Returns index of first occurrence of value, or -1 if not found. */
   public static int findFirst(int[] ns, int value) {

@@ -13,7 +13,7 @@ public class DelaunayTriangulationTest {
     Random random = new Random(seed);
     Point[] points = Points.randomPoints(numPoints, random);
     int iLargest = DelaunayTriangulation.findLargestPoint(points);
-    DelaunayTriangulation.swap(points, 0, iLargest);
+    Util.swap((Object[])points, 0, iLargest);
     
     // What happens when there are two equal points?
     //  points[20] = new Point(points[10]);
