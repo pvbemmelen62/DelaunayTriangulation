@@ -5,6 +5,7 @@ import java.util.*;
 public class PointLocationStructure {
 
   private Point[] points;
+  private int iLargest;
   public Node top;
   
   public class Node {
@@ -176,10 +177,11 @@ public class PointLocationStructure {
    * @param points points of triangulation; points[0] must be largest according
    *   to DelaunayTriangulation.yThenXComparator.
    */
-  public PointLocationStructure(Point[] points) {
+  public PointLocationStructure(Point[] points, int iLargest) {
     this.points = points;
+    this.iLargest = iLargest;
     top = new Node();
-    top.triangle = new int[] {-2, 0, -1};
+    top.triangle = new int[] {-2, iLargest, -1};
   }
   /** Returns array of nodes that contain point p.
    * If p lies internal within the boundary of a node, then the array contains

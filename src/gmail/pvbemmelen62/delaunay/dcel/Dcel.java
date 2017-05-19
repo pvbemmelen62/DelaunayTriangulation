@@ -70,7 +70,8 @@ public class Dcel {
       //   pk to v2
       //   pl to v3
       //
-      if(v0.index<1 && v1.index<1) {
+      if((v0.index<0 || v0.index==iLargest)
+          && (v1.index<0 || v1.index==iLargest)) {
         throw new IllegalStateException(
             "test for face.data==null should have handled this.");
         //return true;
@@ -142,6 +143,12 @@ public class Dcel {
         convex =
             Triangle.getOrientation(p2, p0, p3)==-1
          && Triangle.getOrientation(p3, p1, p2)==-1 ;
+        // Email from Mark de Berg, dd 170516:
+        //   For the “normal” points, the convexity test is not necessary: when
+        //   the two triangles do not form a convex quadrilateral, then the
+        //   in-circle test will always fail.
+        // To preserve the semantics of swapIsConvex(), we will still calculate
+        // the convexity.
       }
       else if(numNegs==1) {
         if(v0.index==-2) {
@@ -350,18 +357,17 @@ public class Dcel {
   }
   public static void linkEdgesAndFace(HalfEdge h, Face f) {
     HalfEdge h0 = h;
-    // TODO remove count code
-    int count = 0;
+//  int count = 0;
     do {
-      if(count > 3) {
-        System.out.println("count:" + count);
-      }
-      if(count > 1000) {
-        throw new IllegalStateException();
-      }
+//    if(count > 3) {
+//      System.out.println("count:" + count);
+//    }
+//    if(count > 1000) {
+//      throw new IllegalStateException();
+//    }
       h.face = f;
       h = h.next;
-      ++count;
+//    ++count;
     }
     while(h!=h0);
     f.edge = h0;
@@ -475,6 +481,7 @@ public class Dcel {
   }
   
   protected Point[] points;
+  protected int iLargest;
   protected Vertex[] vertices;
   protected ArrayList<HalfEdge> edges; // : for debugging only.
   /** Vertex -2 . */
@@ -482,32 +489,33 @@ public class Dcel {
   /** Vertex -1 . */
   protected Vertex v_1;
 
-  public Dcel(Point[] points) {
+  public Dcel(Point[] points, int iLargest) {
     this.points = points;
+    this.iLargest = iLargest;
     vertices = new Vertex[points.length];
     edges = new ArrayList<>();
     // create top triangle {-2,0,-1}
     v_2 = new Vertex(-2);
     v_1 = new Vertex(-1);
-    Vertex v0 = new Vertex(0);
-    HalfEdge h_20 = new HalfEdge();
-    HalfEdge h0_2 = new HalfEdge();
-    HalfEdge h0_1 = new HalfEdge();
-    HalfEdge h_10 = new HalfEdge();
+    Vertex vL = new Vertex(iLargest);
+    HalfEdge h_2L = new HalfEdge();
+    HalfEdge hL_2 = new HalfEdge();
+    HalfEdge hL_1 = new HalfEdge();
+    HalfEdge h_1L = new HalfEdge();
     HalfEdge h_1_2 = new HalfEdge();
     HalfEdge h_2_1 = new HalfEdge();
-    linkTwins(h_20, h0_2);
-    linkTwins(h0_1, h_10);
+    linkTwins(h_2L, hL_2);
+    linkTwins(hL_1, h_1L);
     linkTwins(h_1_2, h_2_1);
-    linkPrevNextTriangle(h_20, h0_1, h_1_2);
-    linkPrevNextTriangle(h_2_1, h_10, h0_2);
-    v_2.edge = h_20;   h_20.origin = v_2;   h0_2.origin = v0;
-    v0.edge  = h0_1;   h0_1.origin = v0;    h_10.origin = v_1;
+    linkPrevNextTriangle(h_2L, hL_1, h_1_2);
+    linkPrevNextTriangle(h_2_1, h_1L, hL_2);
+    v_2.edge = h_2L;   h_2L.origin = v_2;   hL_2.origin = vL;
+    vL.edge  = hL_1;   hL_1.origin = vL;    h_1L.origin = v_1;
     v_1.edge = h_1_2;  h_1_2.origin = v_1;  h_2_1.origin = v_2;
-    Face f_2_10 = new Face();
-    Face f_20_1 = new Face();
-    linkEdgesAndFace(h_2_1, f_2_10);
-    linkEdgesAndFace(h_20, f_20_1);
+    Face f_2_1L = new Face();
+    Face f_2L_1 = new Face();
+    linkEdgesAndFace(h_2_1, f_2_1L);
+    linkEdgesAndFace(h_2L, f_2L_1);
   }
   /**
    * Split triangle tri in three triangles by adding a point.
@@ -560,8 +568,8 @@ public class Dcel {
     }
     return h;
   }
-  /** Returns vertex i, or null if there is no suc vertex; also works for i==-1
-   *  and i==-2.*/
+  /** Returns vertex i, or null if there is no suc vertex; handles i==-1
+   *  and i==-2 correctly.*/
   public Vertex getVertex(int i) {
     Vertex v = null;
     if(i==-1) {

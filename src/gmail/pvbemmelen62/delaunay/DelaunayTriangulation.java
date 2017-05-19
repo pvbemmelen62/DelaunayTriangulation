@@ -17,6 +17,7 @@ public class DelaunayTriangulation {
   protected Dcel dcel;
   protected PointLocationStructure pls;
   protected Point[] points;
+  protected int iLargest;
 
   public static Comparator<Point> yThenXComparator = new Comparator<Point>() {
     @Override
@@ -57,13 +58,10 @@ public class DelaunayTriangulation {
   }
   /**
    * Calculates the Delaunay triangulation.
-   * @param points The points for which to create the triangulation; points[0]
-   *   must be largest among all points according to yThenXComparator.
-   * @throws AssertionError if points[0] is not the largest point.
+   * @param points The points for which to create the triangulation.
    */
   public DelaunayTriangulation(Point[] points) {
-    int iLargest = findLargestPoint(points);
-    Util.myAssert(iLargest==0);
+    iLargest = findLargestPoint(points);
     this.points = points;
     triangulate();
   }
@@ -73,13 +71,16 @@ public class DelaunayTriangulation {
   protected void triangulate() {
     Long seed = 0L;
     Random random = new Random(seed);
-    int[] permutation = Util.permutation(random, 1, points.length-1);
-    pls = new PointLocationStructure(points);
-    dcel = new Dcel(points);
-    HalfEdge h_20 = dcel.getHalfEdge(-2, 0);
-    h_20.face.data = pls.top;
+    int[] permutation = Util.permutation(random, 0, points.length-1);
+    pls = new PointLocationStructure(points, iLargest);
+    dcel = new Dcel(points, iLargest);
+    HalfEdge h_2L = dcel.getHalfEdge(-2, iLargest);
+    h_2L.face.data = pls.top;
     for(int i=0; i<permutation.length; ++i) {
       int pointIndex = permutation[i];
+      if(pointIndex==iLargest) {
+        continue;
+      }
       Node[] nodes = pls.findContainingLeafNodes(points[pointIndex]);
       if(nodes.length==1) {
         Node node = nodes[0];
@@ -152,7 +153,7 @@ public class DelaunayTriangulation {
     }
     int iOpposite = h.twin.prev.origin.index;     // opposite iNew wrt h.
     HalfEdge hNew = flipEdge(h);
-    Util.myAssert(hNew.next.next.next == hNew);
+    Util.myAssert(hNew.next.next.next==hNew);
     Util.myAssert(hNew.origin.index==iOpposite
         || hNew.twin.origin.index==iOpposite);
     legalizeEdge(iNew, ie0, iOpposite);

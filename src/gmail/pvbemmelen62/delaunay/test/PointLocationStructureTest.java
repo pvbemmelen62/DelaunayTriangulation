@@ -13,8 +13,8 @@ public class PointLocationStructureTest {
     Random random = new Random(seed);
     Point[] points = Points.randomPoints(numPoints, random);
     int iLargest = DelaunayTriangulation.findLargestPoint(points);
-    Util.swap((Object[])points, 0, iLargest);
-    PointLocationStructure pls = new PointLocationStructure(points);
+//  Util.swap((Object[])points, 0, iLargest);
+    PointLocationStructure pls = new PointLocationStructure(points, iLargest);
     int[] permutation = Util.permutation(random, 1, numPoints-1);
     for(int i=0; i<numPoints-1; ++i) {
       int pointIndex = permutation[i];
